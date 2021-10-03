@@ -1,49 +1,53 @@
 import requests
 
-arg1 = input()
-arg2 = input()
-arg3 = input()
-arg4 = input()
-args = f"{arg1}, {arg2}, {arg3}, {arg4}"
+args = []
+for i in range(4):
+    a = input().strip()
+    if a not in args:
+        args.append(a)
 
 Metod = "MEW"
 URL = "http://127.0.0.1:7777/"
 
-Headers = {"X-Cat-Variable": arg1+", "+arg2}
 
-req = requests.Request(Metod, url=URL, headers=Headers).prepare()
-
+#req = requests.Request(Metod, url=URL, headers=Headers).prepare()
 s = requests.Session()
+req = requests.Request(Metod, url=URL, headers={"X-Cat-Variable": ""}).prepare()
+#Headers = {"X-Cat-Variable": ""}
+ans = []
+if len(args)>3:
+    req.headers["X-Cat-Variable"] = ", ".join(args[0:2])
+    r = s.send(req)
+    ans1 = r.headers["X-Cat-Value"].split(", ")
+    
+    req.headers["X-Cat-Variable"] = ", ".join(args[1:3]) 
+    r = s.send(req)
+    ans2 = r.headers["X-Cat-Value"].split(", ") 
+    
+    req.headers["X-Cat-Variable"] = ", ".join(args[2:4])
+    r = s.send(req)
+    ans3 = r.headers["X-Cat-Value"].split(", ")
 
-r = s.send(req)
-ans1 = r.headers["X-Cat-Value"].split(", ")
-
-req.headers["X-Cat-Variable"] = arg2+", "+arg3 
-r = s.send(req)
-ans2 = r.headers["X-Cat-Value"].split(", ") 
-
-req.headers["X-Cat-Variable"] = arg3+", "+arg4
-r = s.send(req)
-ans3 = r.headers["X-Cat-Value"].split(", ")
-
-
-
-ans = [0 for i in range(4)]
-if ans1[0] in ans2:
-	ans[1]=ans1[0].strip()
-	ans[0]=ans1[1].strip()
+    if ans1[0] in ans2:
+    	ans.append(ans1[1].strip())
+    	ans.append(ans1[0].strip())
+    else:
+    	ans.append(ans1[0].strip())
+    	ans.append(ans1[1].strip())
+    		
+    if ans3[0] in ans2:
+    	ans.append(ans3[0].strip())
+    	ans.append(ans3[1].strip())
+    else:
+    	ans.append(ans3[1].strip())
+    	ans.append(ans3[0].strip())
+    	
 else:
-	ans[1]=ans1[1].strip()
-	ans[0]=ans1[0].strip()
-		
-if ans3[0] in ans2:
-	ans[2]=ans3[0].strip()
-	ans[3]=ans3[1].strip()
-else:
-	ans[2]=ans3[1].strip()
-	ans[3]=ans3[0].strip()
-
+    for arg in args:
+        req.headers["X-Cat-Variable"] = arg
+        r = s.send(req)
+        ans.append( r.headers["X-Cat-Value"].strip() )
 
 
 for a in ans:
-	print(a)
+    print(a)
